@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Delphi Coding Helper",
+  "version": "1.0",
+  "description": "Using AI to help solve coding problems.",
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "permissions": ["activeTab", "tabs", "sidePanel", "scripting", "storage"],
+  "host_permissions": ["https://www.hackerrank.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.hackerrank.com/*"],
+      "js": ["inject.js"]
+    }
+  ]
+}

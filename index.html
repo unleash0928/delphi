@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delphi</title>
+    <script src="index.js"></script>
+</head>
+
+<body>
+    <header style="text-align: center;">
+        <h1>Delphi <span
+                style="font-size: 0.5em; color: #8B4000; border: 1px solid #8B4000; border-radius: 3px; padding: 2px 4px;">Beta</span>
+        </h1>
+    </header>
+
+    <p id="APIKeyInputParent" style="font-size: 1.2em;">APIKey: <input type="text" id="apiKeyInput"
+            placeholder="Enter API Key" style="padding: 2px 4px; border: 1px solid #ccc;">
+        <button id="submitApiKey" style="padding: 2px 4px; margin-left: 5px;">Submit</button>
+        <span id="apiStatus" style="margin-left: 10px;"></span>
+    </p>
+
+    <p style="font-size: 1.2em;"><strong>Currently supported Websites:</strong> Hackerrank
+    </p>
+
+    <p style="font-size: 1.2em;">Injected: <span id="status">🔴</span></p>
+    <button id="inject">Inject</button>
+    <button id="getAnswer">Get Answer</button>
+
+    <p id="answer">.</p>
+</body>
+
+</html>

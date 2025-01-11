@@ -1,13 +1,22 @@
 const BASE_URL = "https://solver.comma-postwar-rift-d2e.workers.dev/";
+const VERSION = 1.0;
+let live = false;
 
 function pulse() {
   queryTab({ type: "ping" }, function(response) {
-    if (response.status) {
-      updateStatus(true);
-    } else {
-      updateStatus(false);
-    }
+    live = response.status;
   });
+}
+
+async function checkUpdates() {
+  const res = await fetch(`${BASE_URL}api/latest`);
+  const data = await res.json();
+
+  if (data.version > VERSION) {
+      document.getElementById("newVersion").innerText = `New version available: ${data.version}! Update from ${data.channel}`;
+  } else {
+    document.getElementById("newVersion").remove();
+  }
 }
 
 function handleSubmissions() {
@@ -75,21 +84,16 @@ async function query_ai(question) {
 }
 
 function get_site_details() {
+  if (!live) {
+    injectScript();
+  }
+
   queryTab({ type: "question" }, function(response) {
     const answerHTML = document.getElementById("answer");
     query_ai(response).then(ai_response => {
       answerHTML.innerHTML = marked(ai_response.data);
     });
   });
-}
-
-function updateStatus(isEnabled) {
-  const status = document.getElementById("status");
-  if (isEnabled) {
-    status.innerText = "🟢";
-  } else {
-    status.innerText = "🔴";
-  }
 }
 
 function queryTab(message, func) {
@@ -128,7 +132,6 @@ function injectScript() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-  document.getElementById("inject").addEventListener("click", injectScript);
   document.getElementById("submitApiKey").addEventListener("click", save_api_key);
   document
     .getElementById("getAnswer")
@@ -136,6 +139,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   setInterval(pulse, 2000);
   setInterval(handleSubmissions, 2000);
+
+  checkUpdates();
 
   get_api_key().then(apiKey => {
     if (apiKey) {

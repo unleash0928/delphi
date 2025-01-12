@@ -1,6 +1,7 @@
 const BASE_URL = "https://solver.comma-postwar-rift-d2e.workers.dev/";
 const VERSION = 1.0;
 let live = false;
+let apiKey = "";
 
 function pulse() {
   queryTab({ type: "ping" }, function(response) {
@@ -28,16 +29,14 @@ function handleSubmissions() {
 }
 
 async function save_api_key() {
-  const apiKey = document.getElementById("apiKeyInput").value;
+  const userApiKey = document.getElementById("apiKeyInput").value;
 
   const res = await fetch(`${BASE_URL}api/verify`, {
     method: "GET",
     headers: {
-      "x-api-key": apiKey
+      "x-api-key": userApiKey
     },
   });
-
-  console.log(res);
 
   if (res.status !== 200) {
     document.getElementById("apiStatus").innerText = "Invalid API Key";
@@ -46,16 +45,17 @@ async function save_api_key() {
   }
 
   await new Promise(resolve => {
-    chrome.storage.sync.set({ apiKey: apiKey }, function() {
+    chrome.storage.sync.set({ apiKey: userApiKey }, function() {
       resolve();
     });
   });
+
+  apiKey = userApiKey;
 
   document.getElementById("apiStatus").innerText = "Saved!";
   document.getElementById("apiStatus").style.color = "green";
 }
 
-let apiKey = "";
 async function get_api_key() {
   if (apiKey !== "") {
     return apiKey;
@@ -83,9 +83,9 @@ async function query_ai(question) {
   return await res.json();
 }
 
-function get_site_details() {
+async function get_site_details() {
   if (!live) {
-    injectScript();
+    await injectScript();
   }
 
   queryTab({ type: "question" }, function(response) {
@@ -121,12 +121,20 @@ function queryTab(message, func) {
   });
 }
 
-function injectScript() {
-  chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-    const activeTab = tabs[0];
-    chrome.scripting.executeScript({
-      target: { tabId: activeTab.id },
-      files: ["inject.js"]
+async function injectScript() {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      const activeTab = tabs[0];
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        files: ["inject.js"]
+      }, () => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve();
+        }
+      });
     });
   });
 }
